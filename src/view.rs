@@ -1,11 +1,11 @@
-use std::error::Error;
-
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::Value;
 
+use crate::Result;
+
 /** Unknown view request */
 #[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
-pub(crate) struct ViewRequest {
+pub struct ViewRequest {
     pub view: String,
     pub data: Option<Value>,
     pub props: Option<Value>,
@@ -14,7 +14,7 @@ pub(crate) struct ViewRequest {
 
 impl ViewRequest {
     pub fn name(&self) -> String {
-        self.view
+        self.view.clone()
     }
 }
 
@@ -36,7 +36,7 @@ pub struct View {
 
 impl View {
     pub fn name(&self) -> String {
-        self.name
+        self.name.clone()
     }
 
     pub fn new<D, P, R, F>(name: String, build_fn: F) -> Self
@@ -133,7 +133,7 @@ pub struct Offset {
 }
 
 impl Padding {
-    fn symmetric(vertical: u16, horizontal: u16) -> Padding {
+    pub fn symmetric(vertical: u16, horizontal: u16) -> Padding {
         Padding {
             top: vertical,
             bottom: vertical,

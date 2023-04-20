@@ -16,17 +16,17 @@ pub mod view;
 
 pub type Result<T, E = Box<dyn Error>> = std::result::Result<T, E>;
 
-fn run(manifest: Manifest, views: Vec<View>) -> Result<()> {
+pub fn run(manifest: Manifest, views: Vec<View>) -> Result<()> {
     env_logger::init();
 
     let body = serde_json::from_reader(std::io::stdin());
     if let Ok(request) = body {
         match request {
-            Request::View(viewReq) => {
-                let opt = views.iter().find(|&v| v.name() == viewReq.name());
+            Request::View(view_req) => {
+                let opt = views.iter().find(|&v| v.name() == view_req.name());
                 match opt {
-                    Some(view) => print!("{}", view.build(viewReq)?),
-                    None => error!("No view found for {}", viewReq.name()),
+                    Some(view) => print!("{}", view.build(view_req)?),
+                    None => error!("No view found for {}", view_req.name()),
                 }
             }
             // Request::Listener(listener) => listener.handle(),
@@ -45,7 +45,7 @@ fn run(manifest: Manifest, views: Vec<View>) -> Result<()> {
 /** The application input */
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 #[serde(untagged)]
-pub enum Request {
+enum Request {
     View(ViewRequest),
     // Listener(ListenerRequest),
     // Resource(ResourceRequest),
