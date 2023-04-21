@@ -1,7 +1,7 @@
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::Result;
+use crate::{from_opt_value, HandleParams, Handler, NamedRequest, RequestHandler, Result};
 
 /** Unknown view request */
 #[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
@@ -12,13 +12,12 @@ pub struct ViewRequest {
     pub context: Option<Context>,
 }
 
-impl ViewRequest {
-    pub fn name(&self) -> String {
+impl NamedRequest for ViewRequest {
+    fn name(&self) -> String {
         self.view.clone()
     }
 }
 
-#[derive(Serialize)]
 pub struct ViewParams<D, P>
 where
     D: DeserializeOwned + 'static,
@@ -29,66 +28,43 @@ where
     pub context: Option<Context>,
 }
 
+impl<D, P> HandleParams<ViewRequest> for ViewParams<D, P>
+where
+    D: DeserializeOwned + 'static,
+    P: DeserializeOwned + 'static,
+{
+    fn from_request(request: ViewRequest) -> Self {
+        ViewParams {
+            data: from_opt_value(request.data).unwrap(),
+            props: from_opt_value(request.props).unwrap(),
+            context: request.context,
+        }
+    }
+}
+
 pub struct View {
     name: String,
     build_fn: Box<dyn Fn(ViewRequest) -> Result<Value>>,
 }
 
-impl View {
-    pub fn name(&self) -> String {
+impl RequestHandler<ViewRequest, Value> for View {
+    fn name(&self) -> String {
         self.name.clone()
     }
 
-    pub fn new<D, P, R, F>(name: String, build_fn: F) -> Self
-    where
-        D: DeserializeOwned + 'static,
-        P: DeserializeOwned + 'static,
-        R: DeserializeOwned + Serialize + 'static,
-        F: Fn(ViewParams<D, P>) -> Result<R> + 'static,
-    {
-        let boxed_fn: Box<dyn Fn(ViewRequest) -> Result<Value>> =
-            Box::new(move |request: ViewRequest| {
-                let result = build_fn(ViewParams {
-                    data: from_opt_value(request.data)?,
-                    props: from_opt_value(request.props)?,
-                    context: request.context,
-                });
-                match result {
-                    Ok(res) => serde_json::to_value(res)
-                        .map_err(|err| Box::new(err) as Box<dyn std::error::Error>),
-                    Err(e) => Err(e),
-                }
-            });
-        View {
-            name,
-            build_fn: boxed_fn,
-        }
-    }
-
-    pub(crate) fn build(&self, request: ViewRequest) -> Result<Value> {
+    fn handle(&self, request: ViewRequest) -> Result<Value> {
         (self.build_fn)(request)
     }
+
+    fn create(name: &str, build_fn: Box<dyn Fn(ViewRequest) -> Result<Value>>) -> Self {
+        View {
+            name: name.to_string(),
+            build_fn,
+        }
+    }
 }
 
-fn from_opt_value<T>(opt: Option<Value>) -> Result<Option<T>>
-where
-    T: DeserializeOwned + 'static,
-{
-    Ok(match opt {
-        Some(value) => Some(
-            serde_json::from_value(value)
-                .map_err(|err| Box::new(err) as Box<dyn std::error::Error>)?,
-        ),
-        None => None,
-    })
-}
-
-pub trait ViewBuilder {
-    fn build<D: DeserializeOwned, P: DeserializeOwned, R: DeserializeOwned>(
-        data: Option<D>,
-        properties: Option<P>,
-    ) -> Result<R>;
-}
+impl Handler<ViewRequest, Value> for View {}
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]

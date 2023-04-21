@@ -12,6 +12,14 @@ pub struct Api {
     pub data: DataApi,
 }
 
+impl Api {
+    pub(crate) fn new(params: ApiParam) -> Api {
+        Api {
+            data: DataApi { api: params },
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct DataApi {
     api: ApiParam,
@@ -20,10 +28,17 @@ pub struct DataApi {
 impl DataApi {
     pub fn get_doc<T: Doc>(&self, coll: &str, id: &str) -> Result<T, Box<dyn std::error::Error>> {
         log::debug!("get_doc {}[{}]", coll, id);
-        let request_url = format!("{url}/app/colls/{coll}/docs/{id}", url = self.api.url, id = id);
+        let request_url = format!(
+            "{url}/app/colls/{coll}/docs/{id}",
+            url = self.api.url,
+            id = id
+        );
 
         ureq::get(request_url.as_str())
-            .set("Authorization", format!("Bearer {}", self.api.token).as_str())
+            .set(
+                "Authorization",
+                format!("Bearer {}", self.api.token).as_str(),
+            )
             .call()?
             .into_json()
             .map_err(|e| e.into())
@@ -35,7 +50,10 @@ impl DataApi {
         let request_url = format!("{url}/app/colls/{coll}/docs", url = self.api.url);
 
         ureq::post(request_url.as_str())
-            .set("Authorization", format!("Bearer {}", self.api.token).as_str())
+            .set(
+                "Authorization",
+                format!("Bearer {}", self.api.token).as_str(),
+            )
             .send_json(doc)?
             .into_json()
             .map_err(|e| e.into())
@@ -51,7 +69,10 @@ impl DataApi {
         );
 
         ureq::put(request_url.as_str())
-            .set("Authorization", format!("Bearer {}", self.api.token).as_str())
+            .set(
+                "Authorization",
+                format!("Bearer {}", self.api.token).as_str(),
+            )
             .send_json(doc)?
             .into_json()
             .map_err(|e| e.into())
@@ -65,7 +86,10 @@ impl DataApi {
         );
 
         ureq::delete(request_url.as_str())
-            .set("Authorization", format!("Bearer {}", self.api.token).as_str())
+            .set(
+                "Authorization",
+                format!("Bearer {}", self.api.token).as_str(),
+            )
             .call()?;
 
         Ok(())
@@ -80,7 +104,10 @@ impl DataApi {
         let request_url = format!("{url}/app/colls/${coll}/docs/find", url = self.api.url);
 
         ureq::post(request_url.as_str())
-            .set("Authorization", format!("Bearer {}", self.api.token).as_str())
+            .set(
+                "Authorization",
+                format!("Bearer {}", self.api.token).as_str(),
+            )
             .send_json(query)?
             .into_json()
             .map_err(|e| e.into())
