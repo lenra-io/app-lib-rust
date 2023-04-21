@@ -23,10 +23,10 @@ pub type Result<T, E = Box<dyn Error>> = std::result::Result<T, E>;
 
 #[derive(Default)]
 pub struct LenraApp {
-    manifest: Manifest,
-    views: Vec<View>,
-    listeners: Vec<Listener>,
-    resources: Vec<Resource>,
+    pub manifest: Manifest,
+    pub views: Vec<View>,
+    pub listeners: Vec<Listener>,
+    pub resources: Vec<Resource>,
 }
 
 impl LenraApp {

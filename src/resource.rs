@@ -2,13 +2,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::{HandleParams, Handler, NamedRequest, RequestHandler, Result};
 
-#[macro_export]
-macro_rules! resource {
-    ($path: tt) => {
-        ($path, include_bytes!($path))
-    };
-}
-
 /** Lenra view request */
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct ResourceRequest {
@@ -52,3 +45,18 @@ impl RequestHandler<ResourceRequest, Vec<u8>> for Resource {
 }
 
 impl Handler<ResourceRequest, Vec<u8>> for Resource {}
+
+pub fn map_resources<const N: usize>(resources: [(&str, &[u8]); N]) -> Vec<Resource> {
+    let mut ret = vec![];
+    resources.iter().for_each(|res| ret.push(map_resource(res)));
+    ret
+}
+
+fn map_resource(&resource: &(&str, &[u8])) -> Resource {
+    let (name, bytes) = resource;
+    let vec = bytes.to_vec();
+    Resource::create(
+        name,
+        Box::new(move |_request: ResourceRequest| Ok(vec.clone())),
+    )
+}
