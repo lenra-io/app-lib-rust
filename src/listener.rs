@@ -9,7 +9,7 @@ use crate::{
 
 /** Lenra listener request */
 #[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
-pub(crate) struct ListenerRequest {
+pub struct ListenerRequest {
     pub action: String,
     pub props: Option<Value>,
     pub event: Option<Value>,
@@ -69,3 +69,25 @@ impl RequestHandler<ListenerRequest, ()> for Listener {
 }
 
 impl Handler<ListenerRequest, ()> for Listener {}
+
+pub enum SystemEvents {
+    OnEnvStart,
+    OnUserFirstJoin,
+    OnSessionStart,
+    OnSessionStop,
+    OnUserLeave,
+    OnEnvStop,
+}
+
+impl SystemEvents {
+    pub fn to_str(&self) -> &str {
+        match self {
+            SystemEvents::OnEnvStart => "onEnvStart",
+            SystemEvents::OnUserFirstJoin => "onUserFirstJoin",
+            SystemEvents::OnSessionStart => "onSessionStart",
+            SystemEvents::OnSessionStop => "onSessionStop",
+            SystemEvents::OnUserLeave => "onUserLeave",
+            SystemEvents::OnEnvStop => "onEnvStop",
+        }
+    }
+}

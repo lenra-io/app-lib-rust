@@ -104,8 +104,8 @@ pub struct BoxShadow {
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
 pub struct Offset {
-    dx: u16,
-    dy: u16,
+    pub dx: u16,
+    pub dy: u16,
 }
 
 impl Padding {

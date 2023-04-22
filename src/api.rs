@@ -2,7 +2,7 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::Value;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
-pub(crate) struct ApiParam {
+pub struct ApiParam {
     pub url: String,
     pub token: String,
 }
