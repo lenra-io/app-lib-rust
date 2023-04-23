@@ -176,7 +176,7 @@ mod test {
             manifest: Manifest {
                 root_view: "test".into(),
             },
-            views: vec![View::new("test", |_params: ViewParams<Value, Value>| {
+            views: vec![View::new("test", |_: ViewParams| {
                 Ok(json!({"type": "text", "value": "test"}))
             })],
             ..Default::default()
@@ -200,7 +200,7 @@ mod test {
             manifest: Manifest {
                 root_view: "test".into(),
             },
-            views: vec![View::new("test", |_params: ViewParams<Value, Value>| {
+            views: vec![View::new("test", |_: ViewParams| {
                 Ok(json!({"type": "text", "value": "test"}))
             })],
             ..Default::default()

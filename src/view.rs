@@ -18,7 +18,7 @@ impl NamedRequest for ViewRequest {
     }
 }
 
-pub struct ViewParams<D, P>
+pub struct ViewParams<D = Value, P = Value>
 where
     D: DeserializeOwned + 'static,
     P: DeserializeOwned + 'static,
@@ -41,6 +41,16 @@ where
         }
     }
 }
+
+// impl HandleParams<ViewRequest> for ViewParams<Value, Value> {
+//     fn from_request(request: ViewRequest) -> Self {
+//         ViewParams {
+//             data: request.data,
+//             props: request.props,
+//             context: request.context,
+//         }
+//     }
+// }
 
 pub struct View {
     name: String,

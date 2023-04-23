@@ -22,7 +22,7 @@ impl NamedRequest for ListenerRequest {
     }
 }
 
-pub struct ListenerParams<P, E>
+pub struct ListenerParams<P = Value, E = Value>
 where
     P: DeserializeOwned + 'static,
     E: DeserializeOwned + 'static,
