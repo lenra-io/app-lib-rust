@@ -1,5 +1,5 @@
 // use async_trait::async_trait;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize};
 use serde_json::Value;
 
 use crate::{
@@ -8,7 +8,7 @@ use crate::{
 };
 
 /** Lenra listener request */
-#[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
+#[derive(Deserialize, Debug, PartialEq, Default)]
 pub struct ListenerRequest {
     pub action: String,
     pub props: Option<Value>,

@@ -1,7 +1,8 @@
+use crate::Result;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Serialize, Debug, PartialEq, Default)]
+#[derive(Deserialize, Debug, PartialEq, Default)]
 pub struct ApiParam {
     pub url: String,
     pub token: String,
@@ -44,7 +45,7 @@ impl DataApi {
             .map_err(|e| e.into())
     }
 
-    pub fn create_doc<T: Doc>(&self, coll: &str, doc: T) -> Result<T, Box<dyn std::error::Error>> {
+    pub fn create_doc<T: Doc>(&self, coll: &str, doc: T) -> Result<T> {
         log::debug!("create_doc {}", serde_json::to_string(&doc).unwrap());
 
         let request_url = format!("{url}/app/colls/{coll}/docs", url = self.api.url);
@@ -59,7 +60,7 @@ impl DataApi {
             .map_err(|e| e.into())
     }
 
-    pub fn update_doc<T: Doc>(&self, coll: &str, doc: T) -> Result<T, Box<dyn std::error::Error>> {
+    pub fn update_doc<T: Doc>(&self, coll: &str, doc: T) -> Result<T> {
         log::debug!("update_doc {}", serde_json::to_string(&doc).unwrap());
 
         let request_url = format!(
@@ -78,7 +79,7 @@ impl DataApi {
             .map_err(|e| e.into())
     }
 
-    pub fn delete_doc<T: Doc>(&self, coll: &str, doc: T) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn delete_doc<T: Doc>(&self, coll: &str, doc: T) -> Result<()> {
         let request_url = format!(
             "{url}/app/colls/{coll}/docs/{id}",
             url = self.api.url,
@@ -95,12 +96,8 @@ impl DataApi {
         Ok(())
     }
 
-    pub fn execute_query<T: Doc, Q: Serialize>(
-        &self,
-        coll: &str,
-        query: Q,
-    ) -> Result<Vec<T>, Box<dyn std::error::Error>> {
-        log::debug!("execute_query {}", serde_json::to_string(&query).unwrap());
+    pub fn find<T: Doc, Q: Serialize>(&self, coll: &str, query: Q) -> Result<Vec<T>> {
+        log::debug!("find {}", serde_json::to_string(&query).unwrap());
         let request_url = format!("{url}/app/colls/${coll}/docs/find", url = self.api.url);
 
         ureq::post(request_url.as_str())

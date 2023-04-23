@@ -9,7 +9,7 @@ use listener::{Listener, ListenerRequest};
 use log::{error, warn};
 use manifest::Manifest;
 use resource::{Resource, ResourceRequest};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize};
 use serde_json::Value;
 use view::{View, ViewRequest};
 
@@ -139,7 +139,7 @@ where
 }
 
 /** The application input */
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Deserialize, Debug, PartialEq)]
 #[serde(untagged)]
 enum Request {
     View(ViewRequest),
