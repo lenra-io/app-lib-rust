@@ -1,7 +1,7 @@
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
+#[derive(Serialize, Debug, PartialEq, Default)]
 pub struct ApiParam {
     pub url: String,
     pub token: String,
@@ -26,7 +26,7 @@ pub struct DataApi {
 }
 
 impl DataApi {
-    pub fn get_doc<T: Doc>(&self, coll: &str, id: &str) -> Result<T, Box<dyn std::error::Error>> {
+    pub fn get_doc<T: Doc>(&self, coll: &str, id: &str) -> Result<T> {
         log::debug!("get_doc {}[{}]", coll, id);
         let request_url = format!(
             "{url}/app/colls/{coll}/docs/{id}",
