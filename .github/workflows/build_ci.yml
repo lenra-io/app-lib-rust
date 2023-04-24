@@ -1,0 +1,139 @@
+name: Rust
+
+on:
+  push:
+    branches:
+      - main
+      - beta
+    paths-ignore:
+      - '*.md'
+  pull_request:
+    paths-ignore:
+      - '*.md'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  get-next-version:
+    name: Get next version
+    runs-on: ubuntu-20.04
+    continue-on-error: true # must be allow to fail
+    timeout-minutes: 2
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+
+
+    - id: get-next-version
+      name: Get next version
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: npx -p conventional-changelog-conventionalcommits@5 -p @semantic-release/git -p semantic-release-export-data -p semantic-release@19 semantic-release --dry-run
+
+    outputs:
+      new-release-published: ${{ steps.get-next-version.outputs.new-release-published }}
+      new-release-version: ${{ steps.get-next-version.outputs.new-release-version }}
+
+  style:
+    name: Check Style
+    runs-on: ubuntu-20.04
+    timeout-minutes: 2
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Install rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        components: rustfmt
+        profile: minimal
+        override: true
+
+    - name: cargo fmt -- --check
+      uses: actions-rs/cargo@v1
+      with:
+        command: fmt
+        args: --all -- --check
+
+  test:
+    name: Test
+    needs: [style]
+    runs-on: ubuntu-20.04
+    timeout-minutes: 5
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Install rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+        profile: minimal
+        override: true
+
+    - name: Build debug
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --verbose
+
+    - name: Test
+      uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --verbose
+
+  publish:
+    name: publish
+    needs: [test, get-next-version]
+    if: github.ref_name == 'main' || github.ref_name == 'beta' || github.ref_name == 'alpha'
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.get-next-version.outputs.new-release-version }}
+    timeout-minutes: 8
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: download-artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: artifacts/
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: "18"
+
+    - id: release
+      name: Release
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: npx --force -p conventional-changelog-conventionalcommits@5 -p @semantic-release/git -p semantic-release-export-data -p https://github.com/Tlepel/semantic-release.git#fix-versions-share-head semantic-release
+
+    - name: Install cargo-edit
+      if: ${{ steps.release.outputs.new-release-published }}
+      uses: actions-rs/cargo@v1
+      with:
+        command: install
+        args: cargo-edit
+
+    - name: Set version
+      if: ${{ steps.release.outputs.new-release-published }}
+      uses: actions-rs/cargo@v1
+      with:
+        command: set-version
+        args: ${{ env.VERSION }}
+
+    - name: Publish cargo
+      shell: bash
+      if: ${{ steps.release.outputs.new-release-published }}
+      run: cargo publish --allow-dirty --token "${{ secrets.CARGO_TOKEN }}"
