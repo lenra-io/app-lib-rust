@@ -39,7 +39,7 @@ cargo add lenra-app@~1.0.0-beta.0
 
 ### Lenra API calls
 
-To call a Lenra API from a listener, just use the Api instance int the parameter of your listener function.
+To call the Lenra API from a listener, just use the Api instance in the parameter of your listener function.
 
 You can then call the data API like that to create a document:
 ```rust
