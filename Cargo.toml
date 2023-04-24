@@ -2,8 +2,14 @@
 name = "lenra-app"
 version = "0.0.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license = "MIT"
+description = "App Lib for Rust Lenra apps"
+repository = "https://github.com/lenra-io/app-lib-rust"
+keywords = ["lenra", "app", "lib", "api"]
+include = [
+    "**/*.rs",
+    "Cargo.toml",
+]
 
 [lib]
 name = "lenra_app"
