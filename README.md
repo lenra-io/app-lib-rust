@@ -87,16 +87,6 @@ Contributions are what make the open source community such an amazing place to l
 If you have a suggestion that would make this better, please open an issue with the tag "enhancement" or "bug".
 Don't forget to give the project a star! Thanks again!
 
-### Run tests
-
-In order to have more advanced unit tests, we use [Mocktopus](https://github.com/CodeSandwich/Mocktopus) that is based on the nightly Rust toolchain.
-To run them you have to install the toolchain and run them with it:
-
-```bash
-rustup install nightly
-cargo +nightly test
-```
-
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
