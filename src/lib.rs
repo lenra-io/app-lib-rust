@@ -7,7 +7,6 @@ use std::{
 
 use listener::{Listener, ListenerRequest};
 use log::{error, warn};
-use manifest::Manifest;
 use resource::{Resource, ResourceRequest};
 use serde::{de::DeserializeOwned, Deserialize};
 use serde_json::Value;
@@ -15,7 +14,6 @@ use view::{View, ViewRequest};
 
 pub mod api;
 pub mod listener;
-pub mod manifest;
 pub mod resource;
 pub mod view;
 
