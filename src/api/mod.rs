@@ -2,8 +2,9 @@ use crate::Result;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::{json, Value};
 
-mod app_request;
-mod manifest;
+pub mod app_request;
+pub mod manifest;
+pub mod view_response;
 
 pub trait ApiTrait {
     fn url(&self) -> String;

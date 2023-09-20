@@ -5,6 +5,7 @@ use std::{
     str,
 };
 
+use api::manifest::Manifest;
 use listener::{Listener, ListenerRequest};
 use log::{error, warn};
 use resource::{Resource, ResourceRequest};
@@ -47,7 +48,7 @@ impl LenraApp {
                 if req != Value::Null {
                     warn!("Not managed request: {}", req);
                 }
-                print!("{}", self.manifest.to_value());
+                print!("{:?}", self.manifest);
             }
         };
         Ok(())
@@ -171,9 +172,9 @@ mod test {
     #[test]
     fn simple_view() {
         let app = LenraApp {
-            manifest: Manifest {
-                root_view: "test".into(),
-            },
+            // manifest: Manifest {
+            //     root_view: "test".into(),
+            // },
             views: vec![View::new("test", |_: ViewParams| {
                 Ok(json!({"type": "text", "value": "test"}))
             })],
@@ -195,9 +196,9 @@ mod test {
     #[should_panic]
     fn unkown_view() {
         let app = LenraApp {
-            manifest: Manifest {
-                root_view: "test".into(),
-            },
+            // manifest: Manifest {
+            //     root_view: "test".into(),
+            // },
             views: vec![View::new("test", |_: ViewParams| {
                 Ok(json!({"type": "text", "value": "test"}))
             })],
