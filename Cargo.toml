@@ -21,11 +21,16 @@ log = "0.4.17"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 ureq = { version = "2.5.0", features = ["json"] }
-typify = "0.0.13"
+regress = "0.7.1"
+internal_api = { version = "0.1.0", path = "clients/internal_api" }
 
 [build-dependencies]
 prettyplease = "0.2"
 schemars = "0.8"
 serde_json = "1.0.106"
 syn = "2.0.32"
-typify = "0.0.13"
+typify = { git = "https://github.com/oxidecomputer/typify.git", branch = "main" }
+regex = "1.9.5"
+oapi_generator = "0.0.35"
+libninja = { git = "https://github.com/kurtbuilds/libninja", version = "0.1.9" }
+convert_case = "0.6.0"

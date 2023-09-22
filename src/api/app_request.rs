@@ -1,11 +1,11 @@
-use serde::{Deserialize, Serialize};
-use typify::import_types;
+// use serde::{Deserialize, Serialize};
+// use typify::import_types;
+// import_types!(
+//     schema = "api/app-request.schema.json",
+//     struct_builder = true
+// );
 
-// include!(concat!(env!("OUT_DIR"), "/app-request.rs"));
-import_types!(
-    schema = "api/app-request.schema.json",
-    struct_builder = true
-);
+include!(concat!(env!("OUT_DIR"), "/requests_app.rs"));
 
 #[cfg(test)]
 mod test {
@@ -15,12 +15,8 @@ mod test {
 
     #[test]
     fn simple_view() -> Result<(), String> {
-        let request: AppRequest = AppRequest::ViewRequest(ViewRequest {
-            view: "test".into(),
-            data: None,
-            props: None,
-            context: Map::new(),
-        });
+        let request: AppRequest =
+            AppRequest::View(View::builder().view("test").try_into().unwrap());
         assert_eq!(
             format!(
                 "{}",

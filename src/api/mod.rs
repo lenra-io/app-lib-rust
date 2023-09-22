@@ -3,8 +3,9 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::{json, Value};
 
 pub mod app_request;
+pub mod internal_api;
+pub mod lenra_components;
 pub mod manifest;
-pub mod view_response;
 
 pub trait ApiTrait {
     fn url(&self) -> String;

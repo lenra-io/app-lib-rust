@@ -1,9 +1,9 @@
-use serde::{Deserialize, Serialize};
-use typify::import_types;
+// use serde::{Deserialize, Serialize};
+// use typify::import_types;
 
-import_types!(schema = "api/manifest.schema.json", struct_builder = true);
+// import_types!(schema = "api/manifest.schema.json", struct_builder = true);
 
-// include!(concat!(env!("OUT_DIR"), "/manifest.rs"));
+include!(concat!(env!("OUT_DIR"), "/manifest.rs"));
 
 impl Default for Manifest {
     fn default() -> Self {
@@ -13,7 +13,6 @@ impl Default for Manifest {
 
 #[cfg(test)]
 mod test {
-
     use serde_json::{json, Map, Value};
 
     use super::*;

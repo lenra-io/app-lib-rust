@@ -1,0 +1,4 @@
+internal-api.yml
+manifest.schema.json
+requests/app.schema.json
+components/lenra.schema.json
