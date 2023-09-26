@@ -2,9 +2,6 @@ use crate::Result;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::{json, Value};
 
-pub mod app_request;
-pub mod internal_api;
-pub mod lenra_components;
 pub mod manifest;
 
 pub trait ApiTrait {
@@ -20,92 +17,163 @@ pub struct ApiParam {
 
 #[derive(Debug, PartialEq)]
 pub struct Api {
+    pub(self) params: ApiParam,
     pub data: DataApi,
 }
 
 impl Api {
-    pub(crate) fn new(params: ApiParam) -> Api {
+    pub(crate) fn new(api: ApiParam) -> Api {
+        let params: ApiParam = api.clone();
         Api {
-            data: DataApi { api: params },
+            params: params.clone(),
+            data: DataApi {
+                params: params.clone(),
+            },
         }
     }
 }
 
 impl ApiTrait for Api {
     fn url(&self) -> String {
-        self.data.api.url.clone()
+        self.params.url.clone()
     }
 
     fn token(&self) -> String {
-        self.data.api.token.clone()
+        self.params.token.clone()
     }
 }
 
-trait DataApiTrait: ApiTrait {
-    fn get_doc<T: Doc>(&self, coll: &str, id: &str) -> Result<T> {
-        log::debug!("get_doc {}[{}]", coll, id);
+pub trait CollectionGetter: ApiTrait + Sized {
+    fn coll(&'static self, coll: &str) -> Collection {
+        Collection {
+            coll: coll.to_string(),
+            api: self,
+        }
+    }
+}
+
+pub struct Collection {
+    coll: String,
+    api: &'static dyn ApiTrait,
+}
+
+impl Collection {
+    pub fn get_doc<T: Doc>(&self, id: &str) -> Result<T> {
+        log::debug!("get_doc {}[{}]", self.coll, id);
         let request_url = format!(
-            "{url}/app/colls/{coll}/docs/{id}",
-            url = self.url(),
-            id = id
+            "{url}/app-api/v1/data/colls/{coll}/docs/{id}",
+            url = self.api.url(),
+            id = id,
+            coll = self.coll
         );
 
         ureq::get(request_url.as_str())
-            .set("Authorization", format!("Bearer {}", self.token()).as_str())
+            .set(
+                "Authorization",
+                format!("Bearer {}", self.api.token()).as_str(),
+            )
             .call()?
             .into_json()
             .map_err(|e| e.into())
     }
 
-    fn create_doc<T: Doc>(&self, coll: &str, doc: T) -> Result<T> {
+    pub fn create_doc<T: Doc>(&self, doc: T) -> Result<T> {
         log::debug!("create_doc {}", serde_json::to_string(&doc).unwrap());
 
-        let request_url = format!("{url}/app/colls/{coll}/docs", url = self.url());
+        let request_url = format!(
+            "{url}/app-api/v1/data/colls/{coll}/docs",
+            url = self.api.url(),
+            coll = self.coll
+        );
 
         ureq::post(request_url.as_str())
-            .set("Authorization", format!("Bearer {}", self.token()).as_str())
+            .set(
+                "Authorization",
+                format!("Bearer {}", self.api.token()).as_str(),
+            )
             .send_json(doc)?
             .into_json()
             .map_err(|e| e.into())
     }
 
-    fn update_doc<T: Doc>(&self, coll: &str, doc: T) -> Result<T> {
+    pub fn update_doc<T: Doc>(&self, doc: T) -> Result<T> {
         log::debug!("update_doc {}", serde_json::to_string(&doc).unwrap());
 
         let request_url = format!(
-            "{url}/app/colls/{coll}/docs/{id}",
-            url = self.url(),
-            id = doc.id().unwrap()
+            "{url}/app-api/v1/data/colls/{coll}/docs/{id}",
+            url = self.api.url(),
+            id = doc.id().unwrap(),
+            coll = self.coll
         );
 
         ureq::put(request_url.as_str())
-            .set("Authorization", format!("Bearer {}", self.token()).as_str())
+            .set(
+                "Authorization",
+                format!("Bearer {}", self.api.token()).as_str(),
+            )
             .send_json(doc)?
             .into_json()
             .map_err(|e| e.into())
     }
 
-    fn delete_doc<T: Doc>(&self, coll: &str, doc: T) -> Result<()> {
+    pub fn delete_doc<T: Doc>(&self, doc: T) -> Result<()> {
         let request_url = format!(
-            "{url}/app/colls/{coll}/docs/{id}",
-            url = self.url(),
-            id = doc.id().unwrap()
+            "{url}/app-api/v1/data/colls/{coll}/docs/{id}",
+            url = self.api.url(),
+            id = doc.id().unwrap(),
+            coll = self.coll
         );
 
         ureq::delete(request_url.as_str())
-            .set("Authorization", format!("Bearer {}", self.token()).as_str())
+            .set(
+                "Authorization",
+                format!("Bearer {}", self.api.token()).as_str(),
+            )
             .call()?;
 
         Ok(())
     }
 
-    fn find<T: Doc, Q: Serialize>(&self, coll: &str, query: Q) -> Result<Vec<T>> {
+    pub fn find<T: Doc, Q: Serialize, P: Serialize>(
+        &self,
+        query: Q,
+        projection: Option<P>,
+    ) -> Result<Vec<T>> {
         log::debug!("find {}", serde_json::to_string(&query).unwrap());
-        let request_url = format!("{url}/app/colls/${coll}/docs/find", url = self.url());
+        let request_url = format!(
+            "{url}/app-api/v1/data/colls/{coll}/find",
+            url = self.api.url(),
+            coll = self.coll
+        );
 
         ureq::post(request_url.as_str())
-            .set("Authorization", format!("Bearer {}", self.token()).as_str())
-            .send_json(query)?
+            .set(
+                "Authorization",
+                format!("Bearer {}", self.api.token()).as_str(),
+            )
+            .send_json(json!({ "query": query, "projection": projection }))?
+            .into_json()
+            .map_err(|e| e.into())
+    }
+
+    pub fn update_many<T: Doc, Q: Serialize, U: Serialize>(
+        &self,
+        filter: Q,
+        update: U,
+    ) -> Result<Vec<T>> {
+        log::debug!("updateMany {}, {}", serde_json::to_string(&filter).unwrap(), serde_json::to_string(&update).unwrap());
+        let request_url = format!(
+            "{url}/app-api/v1/data/colls/{coll}/updateMany",
+            url = self.api.url(),
+            coll = self.coll
+        );
+
+        ureq::post(request_url.as_str())
+            .set(
+                "Authorization",
+                format!("Bearer {}", self.api.token()).as_str(),
+            )
+            .send_json(json!({"filter": filter, "update": update}))?
             .into_json()
             .map_err(|e| e.into())
     }
@@ -113,11 +181,11 @@ trait DataApiTrait: ApiTrait {
 
 #[derive(Debug, PartialEq)]
 pub struct DataApi {
-    api: ApiParam,
+    pub(self) params: ApiParam,
 }
 
 impl DataApi {
-    pub fn start_transaction(&self) -> Result<Transaction> {
+    pub fn start_transaction(self) -> Result<Transaction> {
         log::debug!("start_transaction");
 
         let request_url = format!("{url}/app/transaction", url = self.url());
@@ -127,7 +195,7 @@ impl DataApi {
             .send_json(json!({}))?
             .into_string()
             .map(|token| Transaction {
-                api: self.api.clone(),
+                params: self.params.clone(),
                 token,
             })
             .map_err(|e| e.into())
@@ -136,25 +204,25 @@ impl DataApi {
 
 impl ApiTrait for DataApi {
     fn url(&self) -> String {
-        self.api.url.clone()
+        self.params.url.clone()
     }
 
     fn token(&self) -> String {
-        self.api.token.clone()
+        self.params.token.clone()
     }
 }
 
-impl DataApiTrait for DataApi {}
+impl CollectionGetter for DataApi {}
 
 #[derive(Debug, PartialEq)]
 pub struct Transaction {
-    api: ApiParam,
+    pub(self) params: ApiParam,
     token: String,
 }
 
 impl ApiTrait for Transaction {
     fn url(&self) -> String {
-        self.api.url.clone()
+        self.params.url.clone()
     }
 
     fn token(&self) -> String {
@@ -162,7 +230,7 @@ impl ApiTrait for Transaction {
     }
 }
 
-impl DataApiTrait for Transaction {}
+impl CollectionGetter for Transaction {}
 
 impl Transaction {
     pub fn commit(&self) -> Result<()> {

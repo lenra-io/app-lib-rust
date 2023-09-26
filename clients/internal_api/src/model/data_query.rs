@@ -1,9 +1,0 @@
-
-use serde::{Serialize, Deserialize};
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct DataQuery {}
-impl std::fmt::Display for DataQuery {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-        write!(f, "{}", serde_json::to_string(self).unwrap())
-    }
-}

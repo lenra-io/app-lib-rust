@@ -14,6 +14,7 @@ use serde_json::Value;
 use view::{View, ViewRequest};
 
 pub mod api;
+pub mod components;
 pub mod listener;
 pub mod resource;
 pub mod view;
