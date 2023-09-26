@@ -56,9 +56,11 @@ fn json_schema_to_rust(schema_name: &str, out_dir: &str) {
         "use serde::{Deserialize, Serialize};",
         prettyplease::unparse(&syn::parse2::<syn::File>(type_space.to_stream()).unwrap())
     );
-    let target_file_name = schema_name.replace("-", "_").replace(".schema.json", "");
+    let target_file_name = schema_name.replace("-", "_").replace("/", "_").replace(".schema.json", "");
 
-    let (out_file, contents) = if schema_name.starts_with("components/") {
+    let mut out_file = Path::new(out_dir).to_path_buf();
+    out_file.push(format!("{}.rs", target_file_name));
+    let contents = if schema_name.starts_with("components/") {
         let additionnal_content = if schema_name.ends_with("lenra.schema.json") {
             build_component_functions(&mut type_space, schema)
         } else {
@@ -84,14 +86,9 @@ fn json_schema_to_rust(schema_name: &str, out_dir: &str) {
         let mut contents = contents;
         contents.push_str("\n\n");
         contents.push_str(&additionnal_content);
-        (
-            PathBuf::from(format!("src/{}_gen.rs", target_file_name)),
-            contents,
-        )
+        contents
     } else {
-        let mut out_file = Path::new(out_dir).to_path_buf();
-        out_file.push(format!("{}.rs", target_file_name));
-        (out_file, contents)
+        contents
     };
     println!("Writing to {}", out_file.display());
     fs::write(out_file.clone(), contents).unwrap();
@@ -160,21 +157,6 @@ fn build_component_functions(type_space: &mut TypeSpace, root_schema: RootSchema
         })
         .collect::<Vec<String>>()
         .join("\n\n")
-    //     components_titles.iter().for_each(|title| {
-    //         fns.push_str(
-    //             format!(
-    //                 r#"
-
-    // impl Into<LenraComponent> for builder::{title} {{
-    //     fn into(self) -> LenraComponent {{
-    //         LenraComponent::{title}(self.try_into().unwrap())
-    //     }}
-    // }}"#
-    //             )
-    //             .as_str(),
-    //         )
-    //     });
-    // fns
 }
 
 fn build_component_function(
