@@ -1,4 +1,4 @@
-use crate::manifest::{self, ComponentsView, ComponentsViewDefinitionsFind};
+use crate::manifest;
 
 pub mod json;
 pub mod lenra;
@@ -21,9 +21,9 @@ impl Into<manifest::DataProjection> for lenra::DataProjection {
     }
 }
 
-impl Into<ComponentsViewDefinitionsFind> for lenra::ViewDefinitionsFind {
-    fn into(self) -> ComponentsViewDefinitionsFind {
-        ComponentsViewDefinitionsFind {
+impl Into<manifest::ComponentsViewDefinitionsFind> for lenra::ViewDefinitionsFind {
+    fn into(self) -> manifest::ComponentsViewDefinitionsFind {
+        manifest::ComponentsViewDefinitionsFind {
             coll: self.coll,
             query: self.query.into(),
             projection: self.projection.map(|projection| projection.into()),
@@ -31,10 +31,10 @@ impl Into<ComponentsViewDefinitionsFind> for lenra::ViewDefinitionsFind {
     }
 }
 
-impl Into<ComponentsView> for lenra::builder::View {
-    fn into(self) -> ComponentsView {
+impl Into<manifest::ComponentsView> for lenra::builder::View {
+    fn into(self) -> manifest::ComponentsView {
         let view: lenra::View = self.try_into().unwrap();
-        ComponentsView {
+        manifest::ComponentsView {
             context: view.context,
             find: view.find.map(|find| find.into()),
             name: view.name,
