@@ -42,17 +42,20 @@ impl ApiTrait for Api {
 }
 
 pub trait CollectionGetter: ApiTrait + Sized {
-    fn coll(&'static self, coll: &str) -> Collection {
+    fn coll(&self, coll: &str) -> Collection {
         Collection {
             coll: coll.to_string(),
-            api: self,
+            api: ApiParam {
+                url: self.url(),
+                token: self.token(),
+            },
         }
     }
 }
 
 pub struct Collection {
     coll: String,
-    api: &'static dyn ApiTrait,
+    api: ApiParam,
 }
 
 impl Collection {
@@ -60,7 +63,7 @@ impl Collection {
         log::debug!("get_doc {}[{}]", self.coll, id);
         let request_url = format!(
             "{url}/app-api/v1/data/colls/{coll}/docs/{id}",
-            url = self.api.url(),
+            url = self.api.url,
             id = id,
             coll = self.coll
         );
@@ -68,7 +71,7 @@ impl Collection {
         ureq::get(request_url.as_str())
             .set(
                 "Authorization",
-                format!("Bearer {}", self.api.token()).as_str(),
+                format!("Bearer {}", self.api.token).as_str(),
             )
             .call()?
             .into_json()
@@ -80,14 +83,14 @@ impl Collection {
 
         let request_url = format!(
             "{url}/app-api/v1/data/colls/{coll}/docs",
-            url = self.api.url(),
+            url = self.api.url,
             coll = self.coll
         );
 
         ureq::post(request_url.as_str())
             .set(
                 "Authorization",
-                format!("Bearer {}", self.api.token()).as_str(),
+                format!("Bearer {}", self.api.token).as_str(),
             )
             .send_json(doc)?
             .into_json()
@@ -99,7 +102,7 @@ impl Collection {
 
         let request_url = format!(
             "{url}/app-api/v1/data/colls/{coll}/docs/{id}",
-            url = self.api.url(),
+            url = self.api.url,
             id = doc.id().unwrap(),
             coll = self.coll
         );
@@ -107,7 +110,7 @@ impl Collection {
         ureq::put(request_url.as_str())
             .set(
                 "Authorization",
-                format!("Bearer {}", self.api.token()).as_str(),
+                format!("Bearer {}", self.api.token).as_str(),
             )
             .send_json(doc)?
             .into_json()
@@ -117,7 +120,7 @@ impl Collection {
     pub fn delete_doc<T: Doc>(&self, doc: T) -> Result<()> {
         let request_url = format!(
             "{url}/app-api/v1/data/colls/{coll}/docs/{id}",
-            url = self.api.url(),
+            url = self.api.url,
             id = doc.id().unwrap(),
             coll = self.coll
         );
@@ -125,7 +128,7 @@ impl Collection {
         ureq::delete(request_url.as_str())
             .set(
                 "Authorization",
-                format!("Bearer {}", self.api.token()).as_str(),
+                format!("Bearer {}", self.api.token).as_str(),
             )
             .call()?;
 
@@ -140,14 +143,14 @@ impl Collection {
         log::debug!("find {}", serde_json::to_string(&query).unwrap());
         let request_url = format!(
             "{url}/app-api/v1/data/colls/{coll}/find",
-            url = self.api.url(),
+            url = self.api.url,
             coll = self.coll
         );
 
         ureq::post(request_url.as_str())
             .set(
                 "Authorization",
-                format!("Bearer {}", self.api.token()).as_str(),
+                format!("Bearer {}", self.api.token).as_str(),
             )
             .send_json(json!({ "query": query, "projection": projection }))?
             .into_json()
@@ -159,17 +162,21 @@ impl Collection {
         filter: Q,
         update: U,
     ) -> Result<Vec<T>> {
-        log::debug!("updateMany {}, {}", serde_json::to_string(&filter).unwrap(), serde_json::to_string(&update).unwrap());
+        log::debug!(
+            "updateMany {}, {}",
+            serde_json::to_string(&filter).unwrap(),
+            serde_json::to_string(&update).unwrap()
+        );
         let request_url = format!(
             "{url}/app-api/v1/data/colls/{coll}/updateMany",
-            url = self.api.url(),
+            url = self.api.url,
             coll = self.coll
         );
 
         ureq::post(request_url.as_str())
             .set(
                 "Authorization",
-                format!("Bearer {}", self.api.token()).as_str(),
+                format!("Bearer {}", self.api.token).as_str(),
             )
             .send_json(json!({"filter": filter, "update": update}))?
             .into_json()
