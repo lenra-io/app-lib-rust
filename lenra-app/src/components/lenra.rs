@@ -1,4 +1,4 @@
-include!(concat!(env!("OUT_DIR"), "/components_lenra.rs"));
+include!("../gen/components_lenra.rs");
 
 impl Into<LenraComponent> for builder::Actionable {
     fn into(self) -> LenraComponent {

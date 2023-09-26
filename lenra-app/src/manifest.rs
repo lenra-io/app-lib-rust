@@ -1,4 +1,4 @@
-include!(concat!(env!("OUT_DIR"), "/manifest.rs"));
+include!("gen/manifest.rs");
 
 impl Default for Manifest {
     fn default() -> Self {

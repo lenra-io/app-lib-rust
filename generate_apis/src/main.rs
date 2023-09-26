@@ -7,15 +7,10 @@ use std::{
     env,
     fs::{self, File},
     io::BufReader,
-    path::Path,
 };
 use typify::{TypeSpace, TypeSpaceSettings, TypeStruct};
 
-fn main() {
-    // Create out directory
-    let out_dir = env::var("OUT_DIR").unwrap();
-    fs::create_dir_all(&out_dir).unwrap();
-
+fn main() -> Result<(), String> {
     // Loop over all files in the list
     BufReader::new(File::open("lenra-api.files.txt").expect("Could not open the file list"))
         .lines()
@@ -24,24 +19,25 @@ fn main() {
         .map(|line| line.trim().to_string())
         .filter(|line| !line.is_empty())
         .for_each(|schema| {
-            generate_structs(schema.as_str(), out_dir.as_str());
+            generate_structs(schema.as_str());
         });
+    Ok(())
 }
 
-fn generate_structs(schema_name: &str, out_dir: &str) {
+fn generate_structs(schema_name: &str) {
     println!("Loading schema from {}", schema_name);
     if schema_name.ends_with(".schema.json") {
-        json_schema_to_rust(schema_name, out_dir);
+        json_schema_to_rust(schema_name);
     }
     /* else if schema_name.ends_with("-api.yml") {
-        open_api_to_rust(schema_name, out_dir);
+        open_api_to_rust(schema_name);
     } */
     else {
         println!("Skipping {}", schema_name);
     }
 }
 
-fn json_schema_to_rust(schema_name: &str, out_dir: &str) {
+fn json_schema_to_rust(schema_name: &str) {
     let schema_path = format!("api/{}", schema_name);
     let content = std::fs::read_to_string(schema_path).unwrap();
     let regex: Regex = Regex::new(r#"(?m),\n\s+"default":.+$"#).unwrap();
@@ -56,10 +52,11 @@ fn json_schema_to_rust(schema_name: &str, out_dir: &str) {
         "use serde::{Deserialize, Serialize};",
         prettyplease::unparse(&syn::parse2::<syn::File>(type_space.to_stream()).unwrap())
     );
-    let target_file_name = schema_name.replace("-", "_").replace("/", "_").replace(".schema.json", "");
-
-    let mut out_file = Path::new(out_dir).to_path_buf();
-    out_file.push(format!("{}.rs", target_file_name));
+    let target_file_name = schema_name
+        .replace("-", "_")
+        .replace("/", "_")
+        .replace(".schema.json", "");
+    let out_file = PathBuf::from(format!("lenra-app/src/gen/{}.rs", target_file_name));
     let contents = if schema_name.starts_with("components/") {
         let additionnal_content = if schema_name.ends_with("lenra.schema.json") {
             build_component_functions(&mut type_space, schema)
@@ -90,7 +87,6 @@ fn json_schema_to_rust(schema_name: &str, out_dir: &str) {
     } else {
         contents
     };
-    println!("Writing to {}", out_file.display());
     fs::write(out_file.clone(), contents).unwrap();
 
     if let Some(rustfmt) = rustfmt_path() {
@@ -141,7 +137,6 @@ fn build_component_functions(type_space: &mut TypeSpace, root_schema: RootSchema
         .iter_types()
         .filter(|t| components_titles.contains(&t.name()))
         .map(|el| {
-            println!("{:?} {:?}", el.name(), el.describe());
             let schema = components
                 .iter()
                 .find(|&schema| {
@@ -164,8 +159,6 @@ fn build_component_function(
     struct_type: &TypeStruct,
     schema: &mut SchemaObject,
 ) -> String {
-    println!("Building component function for {:?}", schema);
-
     let title = schema
         .metadata
         .as_ref()
@@ -195,7 +188,6 @@ fn build_component_function(
                 .contains(&normalize_prop_name(&name.to_string()))
         })
         .for_each(|(name, type_id)| {
-            println!("prop {}", name);
             let type_name = type_space.get_type(&type_id).unwrap().name();
             if !params_builder.is_empty() {
                 params_builder.push_str(", ");
@@ -203,7 +195,6 @@ fn build_component_function(
             params_builder.push_str(format!("{}: {}", name, type_name).as_str());
             instance_builder.push_str(format!("\n        .{}({})", name, name).as_str());
         });
-    println!("{}", params_builder);
     format!(
         r#"pub fn {lower_case_title}({params_builder}) -> builder::{title} {{
     {title}::builder()
