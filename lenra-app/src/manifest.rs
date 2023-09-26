@@ -8,7 +8,11 @@ impl Default for Manifest {
 
 #[cfg(test)]
 mod test {
+    use std::vec;
+
     use serde_json::{json, Map, Value};
+
+    use crate::components::lenra::{self, view, ViewDefinitionsFind};
 
     use super::*;
 
@@ -51,6 +55,37 @@ mod test {
                 serde_json::to_string(&manifest).map_err(|er| er.to_string())?
             ),
             r#"{"json":{"routes":[{"path":"/counter/global","view":{"find":{"coll":"counter","query":{"user":"global"}},"name":"counter","_type":"view"}},{"path":"/counter/me","view":{"find":{"coll":"counter","query":{"user":"@me"}},"name":"counter","_type":"view"}}]}}"#
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn from_lenra_view() -> Result<(), String> {
+        let route: Route = Route {
+            path: "/counter/global".into(),
+            view: view("counter".into())
+                .find(Some(
+                    ViewDefinitionsFind::builder()
+                        .coll("counter")
+                        .query(lenra::DataQuery::from(Map::from_iter(vec![(
+                            "user".to_string(),
+                            Value::String("global".into()),
+                        )])))
+                        .try_into()
+                        .unwrap(),
+                ))
+                .into(),
+        };
+        let manifest: Manifest = Manifest::builder()
+            .json(Some(Exposer::builder().routes(vec![route]).try_into()?))
+            .try_into()?;
+
+        assert_eq!(
+            format!(
+                "{}",
+                serde_json::to_string(&manifest).map_err(|er| er.to_string())?
+            ),
+            r#"{"json":{"routes":[{"path":"/counter/global","view":{"find":{"coll":"counter","query":{"user":"global"}},"name":"counter","_type":"view"}}]}}"#
         );
         Ok(())
     }
