@@ -10,7 +10,7 @@ use crate::{
 /** Lenra listener request */
 #[derive(Deserialize, Debug, PartialEq, Default)]
 pub struct ListenerRequest {
-    pub action: String,
+    pub listener: String,
     pub props: Option<Value>,
     pub event: Option<Value>,
     pub api: ApiParam,
@@ -18,7 +18,7 @@ pub struct ListenerRequest {
 
 impl NamedRequest for ListenerRequest {
     fn name(&self) -> String {
-        self.action.clone()
+        self.listener.clone()
     }
 }
 
