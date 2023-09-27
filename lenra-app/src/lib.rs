@@ -50,7 +50,7 @@ impl LenraApp {
                 if req != Value::Null {
                     warn!("Not managed request: {}", req);
                 }
-                write!(writer, "{}", serde_json::to_string(self.manifest))?;
+                write!(writer, "{}", serde_json::to_string(&self.manifest))?;
             }
         };
         Ok(())
