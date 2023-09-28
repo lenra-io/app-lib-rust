@@ -101,7 +101,7 @@ mod test {
     use serde_json::json;
 
     use crate::{
-        components::{json::listener, lenra::*},
+        components::{lenra::*, listener},
         ComponentBuilder,
     };
 

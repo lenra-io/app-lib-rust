@@ -2,5 +2,5 @@
 manifest.schema.json
 # requests/app.schema.json
 # components/json.schema.json
-components/listener.schema.json
+# components/listener.schema.json
 components/lenra.schema.json

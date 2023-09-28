@@ -1,8 +1,6 @@
 use crate::{ComponentBuilder, from_value};
 
-include!("../gen/components_listener.rs");
+use super::lenra::{Listener, builder};
 
-impl ComponentBuilder<Listener> for builder::Listener {}
+// include!("../gen/components_listener.rs");
 
-
-from_value!(DefsProps);
