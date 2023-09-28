@@ -162,11 +162,7 @@ mod test {
 
     #[test]
     fn simple_lenra_component() {
-        let result: LenraComponent = flex(vec![
-            text("Hello").into(),
-            text("World").into(),
-        ])
-        .into();
+        let result: LenraComponent = flex(vec![text("Hello").into(), text("World").into()]).into();
         assert_eq!(
             serde_json::to_string(&result).unwrap(),
             r#"{"children":[{"_type":"text","value":"Hello"},{"_type":"text","value":"World"}],"_type":"flex"}"#
