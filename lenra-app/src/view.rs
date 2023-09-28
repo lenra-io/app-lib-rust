@@ -112,7 +112,7 @@ mod test {
         let view = super::View::create(
             "test",
             Box::new(|_| {
-                let component: LenraComponent = text("test".into()).into();
+                let component: LenraComponent = text("test").into();
                 Ok(component.gen())
             }),
         );

@@ -171,6 +171,8 @@ fn build_component_function(
     let lower_case_title = title.to_lowercase();
     let mut params_builder = String::new();
     let mut instance_builder = String::new();
+    let mut type_builder = String::new();
+    let mut where_builder = String::new();
     let schema_object = schema.object.as_ref().unwrap();
 
     let required_props: Vec<String> = schema_object
@@ -180,6 +182,8 @@ fn build_component_function(
         .map(normalize_prop_name)
         .collect();
 
+    let mut type_counter = 0;
+
     struct_type
         .properties()
         .filter(|(name, _)| {
@@ -188,15 +192,26 @@ fn build_component_function(
                 .contains(&normalize_prop_name(&name.to_string()))
         })
         .for_each(|(name, type_id)| {
+            let pos = type_counter;
+            type_counter += 1;
             let type_name = type_space.get_type(&type_id).unwrap().name();
-            if !params_builder.is_empty() {
+            if pos == 0 {
+                type_builder.push_str("<");
+                where_builder.push_str(" \nwhere\n");
+            } else {
+                type_builder.push_str(", ");
                 params_builder.push_str(", ");
             }
-            params_builder.push_str(format!("{}: {}", name, type_name).as_str());
+            type_builder.push_str(format!("T{pos}").as_str());
+            where_builder.push_str(format!("    T{pos}: std::convert::TryInto<{type_name}>,\n    T{pos}::Error: std::fmt::Display,\n").as_str());
+            params_builder.push_str(format!("{}: T{pos}", name).as_str());
             instance_builder.push_str(format!("\n        .{}({})", name, name).as_str());
         });
+    if type_counter > 0 {
+        type_builder.push_str(">");
+    }
     format!(
-        r#"pub fn {lower_case_title}({params_builder}) -> builder::{title} {{
+        r#"pub fn {lower_case_title}{type_builder}({params_builder}) -> builder::{title}{where_builder} {{
     {title}::builder()
         .type_("{lower_case_title}"){instance_builder}
 }}"#

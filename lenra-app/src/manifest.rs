@@ -114,7 +114,7 @@ mod test {
                     .routes(vec![Route::builder()
                         .path("/counter/global")
                         .view(
-                            view("counter".into()).find(Some(
+                            view("counter").find(Some(
                                 ViewDefinitionsFind::builder()
                                     .coll("counter")
                                     .query(lenra::DataQuery::from(Map::from_iter(vec![(

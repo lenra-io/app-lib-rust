@@ -20532,25 +20532,41 @@ pub mod builder {
 }
 
 
-pub fn actionable(child: LenraComponent) -> builder::Actionable {
+pub fn actionable<T0>(child: T0) -> builder::Actionable 
+where
+    T0: std::convert::TryInto<LenraComponent>,
+    T0::Error: std::fmt::Display,
+ {
     Actionable::builder()
         .type_("actionable")
         .child(child)
 }
 
-pub fn button(text: String) -> builder::Button {
+pub fn button<T0>(text: T0) -> builder::Button 
+where
+    T0: std::convert::TryInto<String>,
+    T0::Error: std::fmt::Display,
+ {
     Button::builder()
         .type_("button")
         .text(text)
 }
 
-pub fn carousel(children: Vec < LenraComponent >) -> builder::Carousel {
+pub fn carousel<T0>(children: T0) -> builder::Carousel 
+where
+    T0: std::convert::TryInto<Vec < LenraComponent >>,
+    T0::Error: std::fmt::Display,
+ {
     Carousel::builder()
         .type_("carousel")
         .children(children)
 }
 
-pub fn checkbox(value: bool) -> builder::Checkbox {
+pub fn checkbox<T0>(value: T0) -> builder::Checkbox 
+where
+    T0: std::convert::TryInto<bool>,
+    T0::Error: std::fmt::Display,
+ {
     Checkbox::builder()
         .type_("checkbox")
         .value(value)
@@ -20561,62 +20577,106 @@ pub fn container() -> builder::Container {
         .type_("container")
 }
 
-pub fn dropdownbutton(child: Box < LenraComponent >, text: String) -> builder::DropdownButton {
+pub fn dropdownbutton<T0, T1>(child: T0, text: T1) -> builder::DropdownButton 
+where
+    T0: std::convert::TryInto<Box < LenraComponent >>,
+    T0::Error: std::fmt::Display,
+    T1: std::convert::TryInto<String>,
+    T1::Error: std::fmt::Display,
+ {
     DropdownButton::builder()
         .type_("dropdownbutton")
         .child(child)
         .text(text)
 }
 
-pub fn flex(children: Vec < LenraComponent >) -> builder::Flex {
+pub fn flex<T0>(children: T0) -> builder::Flex 
+where
+    T0: std::convert::TryInto<Vec < LenraComponent >>,
+    T0::Error: std::fmt::Display,
+ {
     Flex::builder()
         .type_("flex")
         .children(children)
 }
 
-pub fn flexible(child: Box < LenraComponent >) -> builder::Flexible {
+pub fn flexible<T0>(child: T0) -> builder::Flexible 
+where
+    T0: std::convert::TryInto<Box < LenraComponent >>,
+    T0::Error: std::fmt::Display,
+ {
     Flexible::builder()
         .type_("flexible")
         .child(child)
 }
 
-pub fn form(child: Box < LenraComponent >) -> builder::Form {
+pub fn form<T0>(child: T0) -> builder::Form 
+where
+    T0: std::convert::TryInto<Box < LenraComponent >>,
+    T0::Error: std::fmt::Display,
+ {
     Form::builder()
         .type_("form")
         .child(child)
 }
 
-pub fn icon(value: StylesIconName) -> builder::Icon {
+pub fn icon<T0>(value: T0) -> builder::Icon 
+where
+    T0: std::convert::TryInto<StylesIconName>,
+    T0::Error: std::fmt::Display,
+ {
     Icon::builder()
         .type_("icon")
         .value(value)
 }
 
-pub fn image(src: String) -> builder::Image {
+pub fn image<T0>(src: T0) -> builder::Image 
+where
+    T0: std::convert::TryInto<String>,
+    T0::Error: std::fmt::Display,
+ {
     Image::builder()
         .type_("image")
         .src(src)
 }
 
-pub fn menu(children: Vec < LenraComponent >) -> builder::Menu {
+pub fn menu<T0>(children: T0) -> builder::Menu 
+where
+    T0: std::convert::TryInto<Vec < LenraComponent >>,
+    T0::Error: std::fmt::Display,
+ {
     Menu::builder()
         .type_("menu")
         .children(children)
 }
 
-pub fn menuitem(text: String) -> builder::MenuItem {
+pub fn menuitem<T0>(text: T0) -> builder::MenuItem 
+where
+    T0: std::convert::TryInto<String>,
+    T0::Error: std::fmt::Display,
+ {
     MenuItem::builder()
         .type_("menuitem")
         .text(text)
 }
 
-pub fn overlayentry(child: Box < LenraComponent >) -> builder::OverlayEntry {
+pub fn overlayentry<T0>(child: T0) -> builder::OverlayEntry 
+where
+    T0: std::convert::TryInto<Box < LenraComponent >>,
+    T0::Error: std::fmt::Display,
+ {
     OverlayEntry::builder()
         .type_("overlayentry")
         .child(child)
 }
 
-pub fn radio(group_value: String, value: String) -> builder::Radio {
+pub fn radio<T0, T1>(group_value: T0, value: T1) -> builder::Radio 
+where
+    T0: std::convert::TryInto<String>,
+    T0::Error: std::fmt::Display,
+    T1: std::convert::TryInto<String>,
+    T1::Error: std::fmt::Display,
+ {
     Radio::builder()
         .type_("radio")
         .group_value(group_value)
@@ -20628,37 +20688,61 @@ pub fn slider() -> builder::Slider {
         .type_("slider")
 }
 
-pub fn stack(children: Vec < LenraComponent >) -> builder::Stack {
+pub fn stack<T0>(children: T0) -> builder::Stack 
+where
+    T0: std::convert::TryInto<Vec < LenraComponent >>,
+    T0::Error: std::fmt::Display,
+ {
     Stack::builder()
         .type_("stack")
         .children(children)
 }
 
-pub fn statussticker(status: StatusStickerStatus) -> builder::StatusSticker {
+pub fn statussticker<T0>(status: T0) -> builder::StatusSticker 
+where
+    T0: std::convert::TryInto<StatusStickerStatus>,
+    T0::Error: std::fmt::Display,
+ {
     StatusSticker::builder()
         .type_("statussticker")
         .status(status)
 }
 
-pub fn text(value: String) -> builder::Text {
+pub fn text<T0>(value: T0) -> builder::Text 
+where
+    T0: std::convert::TryInto<String>,
+    T0::Error: std::fmt::Display,
+ {
     Text::builder()
         .type_("text")
         .value(value)
 }
 
-pub fn toggle(value: bool) -> builder::Toggle {
+pub fn toggle<T0>(value: T0) -> builder::Toggle 
+where
+    T0: std::convert::TryInto<bool>,
+    T0::Error: std::fmt::Display,
+ {
     Toggle::builder()
         .type_("toggle")
         .value(value)
 }
 
-pub fn view(name: String) -> builder::View {
+pub fn view<T0>(name: T0) -> builder::View 
+where
+    T0: std::convert::TryInto<String>,
+    T0::Error: std::fmt::Display,
+ {
     View::builder()
         .type_("view")
         .name(name)
 }
 
-pub fn wrap(children: Vec < LenraComponent >) -> builder::Wrap {
+pub fn wrap<T0>(children: T0) -> builder::Wrap 
+where
+    T0: std::convert::TryInto<Vec < LenraComponent >>,
+    T0::Error: std::fmt::Display,
+ {
     Wrap::builder()
         .type_("wrap")
         .children(children)

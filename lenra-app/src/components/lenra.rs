@@ -163,8 +163,8 @@ mod test {
     #[test]
     fn simple_lenra_component() {
         let result: LenraComponent = flex(vec![
-            text("Hello".into()).into(),
-            text("World".into()).into(),
+            text("Hello").into(),
+            text("World").into(),
         ])
         .into();
         assert_eq!(
