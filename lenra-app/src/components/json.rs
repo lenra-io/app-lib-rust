@@ -1,4 +1,4 @@
-use super::ComponentBuilder;
+use crate::ComponentBuilder;
 
 include!("../gen/components_listener.rs");
 

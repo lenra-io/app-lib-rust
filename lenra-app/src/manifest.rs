@@ -61,10 +61,10 @@ mod test {
 
     #[test]
     fn from_lenra_view() -> Result<(), String> {
-        let route: Route = Route {
-            path: "/counter/global".into(),
-            view: view("counter".into())
-                .find(Some(
+        let route: Route = Route::builder()
+            .path("/counter/global")
+            .view(
+                view("counter".into()).find(Some(
                     ViewDefinitionsFind::builder()
                         .coll("counter")
                         .query(lenra::DataQuery::from(Map::from_iter(vec![(
@@ -73,9 +73,9 @@ mod test {
                         )])))
                         .try_into()
                         .unwrap(),
-                ))
-                .into(),
-        };
+                )),
+            )
+            .try_into()?;
         let manifest: Manifest = Manifest::builder()
             .json(Some(Exposer::builder().routes(vec![route]).try_into()?))
             .try_into()?;

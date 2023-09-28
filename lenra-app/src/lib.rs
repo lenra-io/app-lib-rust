@@ -1,6 +1,6 @@
 use std::{
     error::Error,
-    fmt,
+    fmt::{self, Debug},
     io::{self, Write},
     str,
 };
@@ -159,6 +159,16 @@ impl Error for CustomError {}
 impl fmt::Display for CustomError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.message)
+    }
+}
+
+pub trait ComponentBuilder<T>: Sized + Clone + std::fmt::Debug
+where
+    T: serde::ser::Serialize + std::convert::TryFrom<Self>,
+    T::Error: std::fmt::Display + std::fmt::Debug,
+{
+    fn build(self) -> T {
+        T::try_from(self).unwrap()
     }
 }
 
