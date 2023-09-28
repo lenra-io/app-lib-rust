@@ -1,4 +1,4 @@
-use crate::components::lenra;
+use crate::{components::lenra, from_value};
 
 include!("gen/manifest.rs");
 
@@ -20,6 +20,38 @@ impl Into<ComponentsView> for lenra::builder::View {
         }
     }
 }
+
+impl Into<DefsProps> for lenra::DefsProps {
+    fn into(self) -> DefsProps {
+        DefsProps(self.0)
+    }
+}
+
+impl Into<DataQuery> for lenra::DataQuery {
+    fn into(self) -> DataQuery {
+        DataQuery(self.0)
+    }
+}
+
+impl Into<DataProjection> for lenra::DataProjection {
+    fn into(self) -> DataProjection {
+        DataProjection(self.0)
+    }
+}
+
+impl Into<ComponentsViewDefinitionsFind> for lenra::ViewDefinitionsFind {
+    fn into(self) -> ComponentsViewDefinitionsFind {
+        ComponentsViewDefinitionsFind {
+            coll: self.coll,
+            query: self.query.into(),
+            projection: self.projection.map(|projection| projection.into()),
+        }
+    }
+}
+
+from_value!(DefsProps);
+from_value!(DataQuery);
+from_value!(DataProjection);
 
 #[cfg(test)]
 mod test {

@@ -1,3 +1,5 @@
+use crate::from_value;
+
 include!("../gen/components_lenra.rs");
 
 impl Into<LenraComponent> for builder::Actionable {
@@ -137,6 +139,21 @@ impl Into<LenraComponent> for builder::Wrap {
         LenraComponent::Wrap(self.try_into().unwrap())
     }
 }
+
+impl StylesPadding {
+    pub fn symmetric(vertical: u16, horizontal: u16) -> StylesPadding {
+        StylesPadding {
+            top: Some(vertical.into()),
+            bottom: Some(vertical.into()),
+            left: Some(horizontal.into()),
+            right: Some(horizontal.into()),
+        }
+    }
+}
+
+from_value!(DefsProps);
+from_value!(DataQuery);
+from_value!(DataProjection);
 
 #[cfg(test)]
 mod test {

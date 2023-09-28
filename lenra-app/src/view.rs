@@ -95,53 +95,15 @@ pub struct ScreenSize {
     pub height: Option<u16>,
 }
 
-/** Lenra view padding */
-#[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
-pub struct Padding {
-    pub top: u16,
-    pub bottom: u16,
-    pub left: u16,
-    pub right: u16,
-}
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
-#[serde(rename_all = "camelCase")]
-pub struct Decoration {
-    pub color: Option<u32>,
-    pub box_shadow: Option<BoxShadow>,
-}
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
-#[serde(rename_all = "camelCase")]
-pub struct BoxShadow {
-    pub blur_radius: Option<u16>,
-    pub color: Option<u32>,
-    pub offset: Option<Offset>,
-}
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
-pub struct Offset {
-    pub dx: u16,
-    pub dy: u16,
-}
-
-impl Padding {
-    pub fn symmetric(vertical: u16, horizontal: u16) -> Padding {
-        Padding {
-            top: vertical,
-            bottom: vertical,
-            left: horizontal,
-            right: horizontal,
-        }
-    }
-}
-
 #[cfg(test)]
 mod test {
 
     use serde_json::json;
 
-    use crate::{components::{json::listener, lenra::*}, ComponentBuilder};
+    use crate::{
+        components::{json::listener, lenra::*},
+        ComponentBuilder,
+    };
 
     use super::*;
 

@@ -22,6 +22,42 @@ pub mod view;
 
 pub type Result<T, E = Box<dyn Error>> = std::result::Result<T, E>;
 
+// Macros
+
+#[macro_export]
+macro_rules! from_value {
+    ($name:ident) => {
+        impl Into<$name> for serde_json::Value {
+            fn into(self) -> $name {
+                serde_json::from_value(self).unwrap()
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! props {
+    ($name:ident) => {
+        impl From<$name> for lenra_app::components::lenra::DefsProps {
+            fn from(value: $name) -> lenra_app::components::lenra::DefsProps {
+                serde_json::to_value(value).unwrap().into()
+            }
+        }
+        impl From<$name> for lenra_app::components::json::DefsProps {
+            fn from(value: $name) -> lenra_app::components::json::DefsProps {
+                serde_json::to_value(value).unwrap().into()
+            }
+        }
+        impl From<$name> for lenra_app::manifest::DefsProps {
+            fn from(value: $name) -> lenra_app::manifest::DefsProps {
+                serde_json::to_value(value).unwrap().into()
+            }
+        }
+    };
+}
+
+// Components
+
 #[derive(Default)]
 pub struct LenraApp {
     pub manifest: Manifest,
