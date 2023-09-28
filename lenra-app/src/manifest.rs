@@ -1,8 +1,23 @@
+use crate::components::lenra;
+
 include!("gen/manifest.rs");
 
 impl Default for Manifest {
     fn default() -> Self {
         Manifest::builder().try_into().unwrap()
+    }
+}
+
+impl Into<ComponentsView> for lenra::builder::View {
+    fn into(self) -> ComponentsView {
+        let view: lenra::View = self.try_into().unwrap();
+        ComponentsView {
+            context: view.context,
+            find: view.find.map(|find| find.into()),
+            name: view.name,
+            props: view.props.map(|props| props.into()),
+            type_: view.type_,
+        }
     }
 }
 
@@ -61,23 +76,26 @@ mod test {
 
     #[test]
     fn from_lenra_view() -> Result<(), String> {
-        let route: Route = Route::builder()
-            .path("/counter/global")
-            .view(
-                view("counter".into()).find(Some(
-                    ViewDefinitionsFind::builder()
-                        .coll("counter")
-                        .query(lenra::DataQuery::from(Map::from_iter(vec![(
-                            "user".to_string(),
-                            Value::String("global".into()),
-                        )])))
-                        .try_into()
-                        .unwrap(),
-                )),
-            )
-            .try_into()?;
         let manifest: Manifest = Manifest::builder()
-            .json(Some(Exposer::builder().routes(vec![route]).try_into()?))
+            .json(Some(
+                Exposer::builder()
+                    .routes(vec![Route::builder()
+                        .path("/counter/global")
+                        .view(
+                            view("counter".into()).find(Some(
+                                ViewDefinitionsFind::builder()
+                                    .coll("counter")
+                                    .query(lenra::DataQuery::from(Map::from_iter(vec![(
+                                        "user".to_string(),
+                                        Value::String("global".into()),
+                                    )])))
+                                    .try_into()
+                                    .unwrap(),
+                            )),
+                        )
+                        .try_into()?])
+                    .try_into()?,
+            ))
             .try_into()?;
 
         assert_eq!(

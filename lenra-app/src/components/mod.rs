@@ -30,16 +30,3 @@ impl Into<manifest::ComponentsViewDefinitionsFind> for lenra::ViewDefinitionsFin
         }
     }
 }
-
-impl Into<manifest::ComponentsView> for lenra::builder::View {
-    fn into(self) -> manifest::ComponentsView {
-        let view: lenra::View = self.try_into().unwrap();
-        manifest::ComponentsView {
-            context: view.context,
-            find: view.find.map(|find| find.into()),
-            name: view.name,
-            props: view.props.map(|props| props.into()),
-            type_: view.type_,
-        }
-    }
-}
