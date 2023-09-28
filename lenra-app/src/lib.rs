@@ -167,7 +167,7 @@ mod test {
 
     use serde_json::json;
 
-    use crate::view::ViewParams;
+    use crate::view::{ViewParams, ViewResponseGenerator};
 
     use super::*;
 
@@ -178,7 +178,7 @@ mod test {
             //     root_view: "test".into(),
             // },
             views: vec![View::new("test", |_: ViewParams| {
-                Ok(json!({"type": "text", "value": "test"}))
+                Ok(json!({"type": "text", "value": "test"}).gen())
             })],
             ..Default::default()
         };
@@ -202,7 +202,7 @@ mod test {
             //     root_view: "test".into(),
             // },
             views: vec![View::new("test", |_: ViewParams| {
-                Ok(json!({"type": "text", "value": "test"}))
+                Ok(json!({"type": "text", "value": "test"}).gen())
             })],
             ..Default::default()
         };

@@ -138,6 +138,7 @@ impl Into<LenraComponent> for builder::Wrap {
     }
 }
 
+
 #[cfg(test)]
 mod test {
 

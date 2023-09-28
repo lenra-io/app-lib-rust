@@ -1,7 +1,19 @@
+use std::fmt::Debug;
+
 use crate::manifest;
 
 pub mod json;
 pub mod lenra;
+
+pub trait ComponentBuilder<T>: Sized + Clone + Debug
+where
+    T: serde::ser::Serialize + std::convert::TryFrom<Self>,
+    T::Error: std::fmt::Display + Debug,
+{
+    fn build(self) -> T {
+        T::try_from(self).unwrap()
+    }
+}
 
 impl Into<manifest::DefsProps> for lenra::DefsProps {
     fn into(self) -> manifest::DefsProps {
