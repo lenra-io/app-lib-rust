@@ -43,11 +43,6 @@ macro_rules! props {
                 serde_json::to_value(value).unwrap().into()
             }
         }
-        impl From<$name> for lenra_app::components::json::DefsProps {
-            fn from(value: $name) -> lenra_app::components::json::DefsProps {
-                serde_json::to_value(value).unwrap().into()
-            }
-        }
         impl From<$name> for lenra_app::manifest::DefsProps {
             fn from(value: $name) -> lenra_app::manifest::DefsProps {
                 serde_json::to_value(value).unwrap().into()
