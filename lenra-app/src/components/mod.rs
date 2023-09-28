@@ -5,7 +5,11 @@ use self::lenra::{builder, Listener, ListenerName};
 // pub mod json;
 pub mod lenra;
 
-pub fn listener(name: ListenerName) -> builder::Listener {
+pub fn listener<T>(name: T) -> builder::Listener
+where
+    T: std::convert::TryInto<ListenerName>,
+    T::Error: std::fmt::Display,
+{
     Listener::builder().type_("listener").name(name)
 }
 

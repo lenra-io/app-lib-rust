@@ -135,7 +135,7 @@ mod test {
             Box::new(|_| {
                 let response = json!({
                     "myField": "test",
-                    "onEvent": listener("name".try_into().unwrap()).build(),
+                    "onEvent": listener("name").build(),
                 });
                 Ok(response.gen())
             }),
