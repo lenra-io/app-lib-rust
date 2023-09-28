@@ -136,4 +136,4 @@ jobs:
     - name: Publish cargo
       shell: bash
       if: ${{ steps.release.outputs.new-release-published }}
-      run: cargo publish --allow-dirty --token "${{ secrets.CARGO_TOKEN }}"
+      run: cargo publish --allow-dirty --token "${{ secrets.CARGO_TOKEN }}" --package lenra-app
