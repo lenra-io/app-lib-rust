@@ -1,6 +1,6 @@
 use std::{
     error::Error,
-    fmt,
+    fmt::{self, Debug},
     io::{self, Write},
     str,
 };
@@ -14,12 +14,44 @@ use serde_json::Value;
 use view::{View, ViewRequest};
 
 pub mod api;
+pub mod components;
 pub mod listener;
 pub mod manifest;
 pub mod resource;
 pub mod view;
 
 pub type Result<T, E = Box<dyn Error>> = std::result::Result<T, E>;
+
+// Macros
+
+#[macro_export]
+macro_rules! from_value {
+    ($name:ident) => {
+        impl Into<$name> for serde_json::Value {
+            fn into(self) -> $name {
+                serde_json::from_value(self).unwrap()
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! props {
+    ($name:ident) => {
+        impl From<$name> for lenra_app::components::lenra::DefsProps {
+            fn from(value: $name) -> lenra_app::components::lenra::DefsProps {
+                serde_json::to_value(value).unwrap().into()
+            }
+        }
+        impl From<$name> for lenra_app::manifest::DefsProps {
+            fn from(value: $name) -> lenra_app::manifest::DefsProps {
+                serde_json::to_value(value).unwrap().into()
+            }
+        }
+    };
+}
+
+// Components
 
 #[derive(Default)]
 pub struct LenraApp {
@@ -49,7 +81,7 @@ impl LenraApp {
                 if req != Value::Null {
                     warn!("Not managed request: {}", req);
                 }
-                print!("{}", self.manifest.to_value());
+                write!(writer, "{}", serde_json::to_string(&self.manifest)?)?;
             }
         };
         Ok(())
@@ -161,23 +193,33 @@ impl fmt::Display for CustomError {
     }
 }
 
+pub trait ComponentBuilder<T>: Sized + Clone + std::fmt::Debug
+where
+    T: serde::ser::Serialize + std::convert::TryFrom<Self>,
+    T::Error: std::fmt::Display + std::fmt::Debug,
+{
+    fn build(self) -> T {
+        T::try_from(self).unwrap()
+    }
+}
+
 #[cfg(test)]
 mod test {
 
     use serde_json::json;
 
-    use crate::view::ViewParams;
+    use crate::view::{ViewParams, ViewResponseGenerator};
 
     use super::*;
 
     #[test]
     fn simple_view() {
         let app = LenraApp {
-            manifest: Manifest {
-                root_view: "test".into(),
-            },
+            // manifest: Manifest {
+            //     root_view: "test".into(),
+            // },
             views: vec![View::new("test", |_: ViewParams| {
-                Ok(json!({"type": "text", "value": "test"}))
+                Ok(json!({"type": "text", "value": "test"}).gen())
             })],
             ..Default::default()
         };
@@ -197,11 +239,11 @@ mod test {
     #[should_panic]
     fn unkown_view() {
         let app = LenraApp {
-            manifest: Manifest {
-                root_view: "test".into(),
-            },
+            // manifest: Manifest {
+            //     root_view: "test".into(),
+            // },
             views: vec![View::new("test", |_: ViewParams| {
-                Ok(json!({"type": "text", "value": "test"}))
+                Ok(json!({"type": "text", "value": "test"}).gen())
             })],
             ..Default::default()
         };

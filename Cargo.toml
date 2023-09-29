@@ -1,23 +1,5 @@
-[package]
-name = "lenra-app"
-version = "0.0.0"
-edition = "2021"
-license = "MIT"
-description = "App Lib for Rust Lenra apps"
-repository = "https://github.com/lenra-io/app-lib-rust"
-keywords = ["lenra", "app", "lib", "api"]
-include = [
-    "**/*.rs",
-    "Cargo.toml",
+[workspace]
+members = [
+	"lenra-app",
+	"generate_apis",
 ]
-
-[lib]
-name = "lenra_app"
-path = "src/lib.rs"
-
-[dependencies]
-env_logger = "0.9.0"
-log = "0.4.17"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-ureq = { version = "2.5.0", features = ["json"] }

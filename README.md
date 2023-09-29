@@ -63,6 +63,8 @@ impl Doc for CustomType {
 pub struct CustomProps {
     value: String,
 }
+// Use the props! macro to generate the props struct automatically
+props!(CustomProps);
 
 fn my_listener(params: ListenerParams<CustomProps, Value>) -> Result<()> {
     let my_doc: CustomType = params.api.data.create_doc(
