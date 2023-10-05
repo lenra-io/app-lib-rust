@@ -102,10 +102,36 @@ mod test {
 
     use crate::{
         components::{lenra::*, listener},
-        ComponentBuilder,
+        props, ComponentBuilder,
     };
 
     use super::*;
+
+    #[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
+    struct TestProps {
+        pub name: String,
+    }
+
+    props!(TestProps);
+
+    #[test]
+    fn parse_view_request_empty_props() {
+        let request: ViewRequest =
+            serde_json::from_str(r#"{"context":{},"data":[],"props":{},"view":"lenra:main"}"#)
+                .unwrap();
+        let view = super::View::new(
+            "test",
+            Box::new(|params: ViewParams<Value, TestProps>| {
+                let component: LenraComponent = text("test").into();
+                assert!(params.props.is_none());
+                Ok(component.gen())
+            }),
+        );
+        assert_eq!(
+            view.handle(request).unwrap(),
+            r#"{"_type":"text","value":"test"}"#
+        );
+    }
 
     #[test]
     fn simple_lenra_view_from_component() {
