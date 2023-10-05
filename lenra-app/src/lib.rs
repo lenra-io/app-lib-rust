@@ -162,10 +162,23 @@ where
     T: DeserializeOwned + 'static,
 {
     Ok(match opt {
-        Some(value) => Some(
-            serde_json::from_value(value)
-                .map_err(|err| Box::new(err) as Box<dyn std::error::Error>)?,
-        ),
+        Some(value) => match value.clone() {
+            Value::Null => None,
+            Value::Object(obj) => {
+                if obj.is_empty() {
+                    None
+                } else {
+                    Some(
+                        serde_json::from_value(value)
+                            .map_err(|err| Box::new(err) as Box<dyn std::error::Error>)?,
+                    )
+                }
+            }
+            _ => Some(
+                serde_json::from_value(value)
+                    .map_err(|err| Box::new(err) as Box<dyn std::error::Error>)?,
+            ),
+        },
         None => None,
     })
 }
