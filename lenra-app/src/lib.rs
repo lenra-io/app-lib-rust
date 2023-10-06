@@ -38,13 +38,13 @@ macro_rules! from_value {
 #[macro_export]
 macro_rules! props {
     ($name:ident) => {
-        impl From<$name> for lenra_app::components::lenra::DefsProps {
-            fn from(value: $name) -> lenra_app::components::lenra::DefsProps {
+        impl From<$name> for crate::components::lenra::DefsProps {
+            fn from(value: $name) -> crate::components::lenra::DefsProps {
                 serde_json::to_value(value).unwrap().into()
             }
         }
-        impl From<$name> for lenra_app::manifest::DefsProps {
-            fn from(value: $name) -> lenra_app::manifest::DefsProps {
+        impl From<$name> for crate::manifest::DefsProps {
+            fn from(value: $name) -> crate::manifest::DefsProps {
                 serde_json::to_value(value).unwrap().into()
             }
         }
